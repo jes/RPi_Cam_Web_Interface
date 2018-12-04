@@ -100,6 +100,51 @@
       echo "</tr>";
    }
 
+    function pikontroll_controls() {
+        if (!file_exists("pikontroll_on")) {
+            return;
+        }
+
+        // controls still to do:
+        // "set trim based on next coords from stellarium"
+
+        echo "<div style=\"float:left; border:solid 1px #ccc; padding: 10px\">";
+        echo "<p>PiKonTroll</p>";
+
+        echo "<button style=\"font-size: 0.8em; width: 120px\" id=\"pkt-pause-tracking\">Pause tracking</button>";
+        echo " | ";
+        echo "<input style=\"font-size:0.8em; width: 100px\" type=\"text\" id=\"pkt-trim-steps\" value=\"1000\">";
+
+        echo "<br>";
+
+        echo "<table>";
+        echo "<tr><td></td><td>";
+        echo "<button style=\"font-size: 0.8em\" id=\"pkt-up\">&#9650;</button>";
+        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"></span></td></tr>";
+        echo "<tr><td>";
+        echo "<button style=\"font-size: 0.8em\" id=\"pkt-left\">&#9664;</button>";
+        echo "</td><td></td><td>";
+        echo "<button style=\"font-size: 0.8em\" id=\"pkt-right\">&#9654;</button>";
+        echo " <span id=\"pkt-0-trim\" style=\"font-size: 0.8em\"></span></td></tr>";
+        echo "<tr><td></td><td>";
+        echo "<button style=\"font-size: 0.8em\" id=\"pkt-down\">&#9660;</button>";
+        echo "</td><td></td></tr>";
+        echo "</table>";
+
+        echo "<hr>";
+
+        echo "<div style=\"float:left\">";
+        echo "<label for=\"pkt-focus\" style=\"font-size:0.8em\">Focus:</label>";
+        echo "<input type=\"range\" id=\"pkt-focus\" min=\"0\" max=\"0\" step=\"1\" value=\"0\">";
+        echo "</div>";
+
+        echo "<div style=\"float:right; padding-left: 10px\">";
+        echo "<span id=\"pkt-coords\" style=\"font-size:0.8em\"></span>";
+        echo "</div>";
+
+        echo "</div>";
+    }
+
    function getExtraStyles() {
       $files = scandir('css');
       foreach($files as $file) {
@@ -281,6 +326,7 @@
       <script src="js/style_minified.js"></script>
       <script src="js/script.js"></script>
       <script src="js/pipan.js"></script>
+      <script src="js/jquery-3.3.1.min.js"></script>
    </head>
    <body onload="setTimeout('init(<?php echo "$mjpegmode, $video_fps, $divider" ?>);', 100);">
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation" <?php getdisplayStyle('navbar', $userLevel); ?>>
@@ -292,6 +338,7 @@
       </div>
 	  <?php simple_button(); ?>
       <div class="container-fluid text-center liveimage">
+         <?php pikontroll_controls(); ?>
          <div><img id="mjpeg_dest" <?php echo getLoadClass() . getImgWidth();?>
 		 <?php if(file_exists("pipan_on")) echo "ontouchstart=\"pipan_start()\""; ?> onclick="toggle_fullscreen(this);" src="./loading.jpg"></div>
          <div id="main-buttons">
@@ -623,5 +670,7 @@
          </div>
       </div>
       <?php if ($debugString != "") echo "$debugString<br>"; ?>
+
+      <script src="js/pikontroll.js"></script>
    </body>
 </html>
