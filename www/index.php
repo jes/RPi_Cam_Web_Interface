@@ -117,7 +117,7 @@
         echo "<table>";
         echo "<tr><td></td><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-up\">&#9650;</button>";
-        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"> </span><button style=\"font-size:0.8em\" id=\"pkt-1-zero\">0</button></td></tr>";
+        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"></span> <button style=\"font-size:0.8em\" id=\"pkt-1-zero\">0</button></td></tr>";
         echo "<tr><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-left\">&#9664;</button>";
         echo "</td><td></td><td>";
