@@ -30,6 +30,7 @@ window.setInterval(function() {
 let pkt_trim_in_flight = [false, false];
 let pkt_extra_trim = [false, false];
 let pkt_trim = [0, 0];
+let pkt_tare = [0, 0];
 $('#pkt-up').click(function() {
     pkt_add_trim(1, 1);
 });
@@ -42,12 +43,20 @@ $('#pkt-left').click(function() {
 $('#pkt-right').click(function() {
     pkt_add_trim(0, 1);
 });
+$('#pkt-0-zero').click(function() {
+    pkt_tare[0] = -pkt_trim[0];
+    pkt_add_trim(0, 0);
+});
+$('#pkt-1-zero').click(function() {
+    pkt_tare[1] = -pkt_trim[1];
+    pkt_add_trim(1, 0);
+});
 
 function pkt_add_trim(motor, dir) {
     // if there's already a trim request in-flight, just note that
     // we want to send another once it's done and do nothing else yet
     pkt_trim[motor] += parseInt($('#pkt-trim-steps').val()) * dir;
-    $('#pkt-' + motor + '-trim').text(pkt_trim[motor] + "...");
+    $('#pkt-' + motor + '-trim').text((pkt_trim[motor] + pkt_tare[motor]) + "...");
 
     if (pkt_trim_in_flight[motor]) {
         pkt_extra_trim[motor] = true;
@@ -74,7 +83,7 @@ function pkt_trim_cb(data, status, xhr) {
         pkt_extra_trim[motor] = false;
     } else {
         pkt_trim[motor] = trim;
-        $('#pkt-' + motor + '-trim').text(trim);
+        $('#pkt-' + motor + '-trim').text(trim + pkt_tare[motor]);
     }
 }
 
@@ -91,6 +100,11 @@ $('#pkt-focus').change(function() {
 });
 
 pikontroll("focus", pkt_focus_cb);
+
+// receive
+$('#pkt-receive').click(function() {
+    pikontroll("receive");
+});
 
 function pkt_set_focus(val) {
     pkt_focus_in_flight = true;

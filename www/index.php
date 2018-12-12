@@ -105,9 +105,6 @@
             return;
         }
 
-        // controls still to do:
-        // "set trim based on next coords from stellarium"
-
         echo "<div style=\"float:left; border:solid 1px #ccc; padding: 10px\">";
         echo "<p>PiKonTroll</p>";
 
@@ -120,16 +117,17 @@
         echo "<table>";
         echo "<tr><td></td><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-up\">&#9650;</button>";
-        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"></span></td></tr>";
+        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"> </span><button style=\"font-size:0.8em\" id=\"pkt-1-zero\">0</button></td></tr>";
         echo "<tr><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-left\">&#9664;</button>";
         echo "</td><td></td><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-right\">&#9654;</button>";
-        echo " <span id=\"pkt-0-trim\" style=\"font-size: 0.8em\"></span></td></tr>";
+        echo " <span id=\"pkt-0-trim\" style=\"font-size: 0.8em\"></span> <button style=\"font-size:0.8em\" id=\"pkt-0-zero\">0</button></td></tr>";
         echo "<tr><td></td><td>";
         echo "<button style=\"font-size: 0.8em\" id=\"pkt-down\">&#9660;</button>";
         echo "</td><td></td></tr>";
         echo "</table>";
+        echo "<button style=\"font-size: 0.8em\" id=\"pkt-receive\">Receive current coords from Stellarium</button>";
 
         echo "<hr>";
 
