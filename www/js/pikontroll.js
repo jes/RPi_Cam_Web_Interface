@@ -19,7 +19,9 @@ window.setInterval(function() {
         pkt_coords_in_flight = true;
         pikontroll("coords", function(data, status, xhr) {
             let match = /ok: coords (-?\d*\.?\d+) (-?\d*\.?\d+)/.exec(data);
-            $('#pkt-coords').html("(" + match[1] + ",<br>" + match[2] + ")");
+            let alt = match[1];
+            let az = match[2];
+            $('#pkt-coords').html("(" + (Math.round(alt*1000)/1000) + ",<br>" + (Math.round(az*1000)/1000) + ")");
             pkt_coords_in_flight = false;
         });
     }
