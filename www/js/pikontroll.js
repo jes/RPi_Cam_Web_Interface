@@ -212,7 +212,7 @@ function process_image() {
         if (antivig_enabled) {
             let dx = 0.5 - (x / im.width);
             let dy = 0.5 - (y / im.height);
-            let r = dx*dx+dy*dy;
+            let rsqr = dx*dx+dy*dy;
             col = col * antivig_k * (-rsqr + antivig_c);
 
             if (col < 0) col = 0;
@@ -263,9 +263,9 @@ function process_image() {
     }
 
     if (need_autostretch) {
-        allvals.sort();
-        let pixmin = Math.round(allvals[allvals.length * 0.05]);
-        let pixmax = Math.round(allvals[allvals.length * 0.95]);
+        allvals.sort(function(a,b) { return parseInt(a) > parseInt(b); });
+        let pixmin = Math.round(allvals[Math.round(allvals.length * 0.01)]);
+        let pixmax = Math.round(allvals[Math.round(allvals.length * 0.99)]);
         $('#proc-min').val(pixmin);
         $('#proc-enable-min').prop('checked',true);
         $('#proc-max').val(pixmax);
