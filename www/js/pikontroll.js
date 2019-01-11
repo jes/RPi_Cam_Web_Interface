@@ -156,8 +156,9 @@ function check_image_processing() {
     let max_enabled = $('#proc-enable-max').is(':checked');
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
+    let histogram_enabled = $('#proc-histogram').is(':checked');
 
-    processing_image = (need_autostretch || min_enabled || max_enabled || grey_enabled || antivig_enabled);
+    processing_image = (need_autostretch || min_enabled || max_enabled || grey_enabled || antivig_enabled || histogram_enabled);
     if (processing_image) {
         $('#mjpeg_dest').hide();
         $('#processed_img').show();
@@ -168,6 +169,10 @@ function check_image_processing() {
 }
 
 $('#mjpeg_dest').on('load', process_image);
+
+$('#autostretch').click(function() {
+    need_autostretch = true;
+});
 
 var antivig_k = 0.5;
 var antivig_c = 2;
@@ -204,8 +209,16 @@ function process_image() {
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let greymode = $('#proc-greyscale').val();
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
+    let histogram_enabled = $('#proc-histogram').is(':checked');
 
     let allvals = [];
+    let hist = [];
+
+    if (histogram_enabled) {
+        for (let v = 0; v <= 255; v++) {
+            hist.push(0);
+        }
+    }
 
     // this function applies our processing steps to a given brightness value at a given x,y coordinate
     let process_pixel = function(x, y, col) {
@@ -213,11 +226,12 @@ function process_image() {
             let dx = 0.5 - (x / im.width);
             let dy = (y-im.height/2)/(im.width);
             let rsqr = dx*dx+dy*dy;
-            col = col * antivig_k * (-rsqr + antivig_c);
+            col *= antivig_k * (-rsqr + antivig_c);
+
+            col = Math.round(col);
 
             if (col < 0) col = 0;
             if (col > 255) col = 255;
-            col = col;
         }
 
         // TODO: if dark subtraction enabled, subtract dark pixels now
@@ -225,9 +239,10 @@ function process_image() {
         if (need_autostretch)
             allvals.push(col);
 
+        if (histogram_enabled)
+            hist[col]++;
+
         col = (col-pixmin) * 255/(pixmax-pixmin);
-        if (col < 0) col = 0;
-        if (col > 255) col = 255;
         return col;
     };
 
@@ -273,16 +288,56 @@ function process_image() {
         need_autostretch = false;
         // HACK: now we have our auto-stretch parameters, let's run this function again to do the processing
         process_image();
-    } else {
-        // restore image data via canvas
-        ctx.putImageData(data, 0, 0);
-        $('#processed_img').attr('src', canvas.toDataURL("image/png"));
-
-        let timetaken = Date.now() - starttime;
-        $('#proc-time').text(timetaken + " ms");
+        return;
     }
+
+    if (histogram_enabled) {
+        $('#histogram').show();
+        draw_histogram(hist, pixmin, pixmax);
+    } else {
+        $('#histogram').hide();
+    }
+
+    // restore image data via canvas
+    ctx.putImageData(data, 0, 0);
+    $('#processed_img').attr('src', canvas.toDataURL("image/png"));
+
+    let timetaken = Date.now() - starttime;
+    $('#proc-time').text(timetaken + " ms");
 }
 
-$('#autostretch').click(function() {
-    need_autostretch = true;
-});
+function draw_histogram(hist, pixmin, pixmax) {
+    let largest = 0;
+    for (let i = 0; i < hist.length; i++) {
+        if (hist[i] > largest)
+            largest = hist[i];
+    }
+
+    let canvas = document.getElementById('histogram');
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 255, 100);
+    ctx.imageSmoothingEnabled = false;
+
+    for (let i = 0; i < hist.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i, 100);
+        ctx.lineTo(i, 100-(100 * hist[i])/largest);
+        if (i >= pixmin && i <= pixmax)
+            ctx.strokeStyle = '#440';
+        else
+            ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.closePath();
+
+        if (i >= pixmin && i <= pixmax) {
+            ctx.beginPath();
+            ctx.moveTo(i, 100-(100 * hist[i])/largest);
+            ctx.lineTo(i, 0);
+            ctx.strokeStyle = '#ff0';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.closePath();
+        }
+    }
+}

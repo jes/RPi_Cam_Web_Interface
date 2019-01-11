@@ -150,6 +150,8 @@
         echo "<button style=\"font-size:0.8em\" id=\"autostretch\">Auto-stretch</button><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-grey\"> Greyscale: <select id=\"proc-greyscale\"><option>R</option><option>G</option><option>B</option><option>Mean</option></select><br>";
         echo "<input type=\"checkbox\" id=\"proc-anti-vignette\"> Anti-vignette<br>";
+        echo "<input type=\"checkbox\" id=\"proc-histogram\"> Histogram<br>";
+        echo "<canvas id=\"histogram\" width=\"255\" height=\"100\" style=\"display:none;border:solid 1px black\"></canvas><br>";
         echo "<span id=\"proc-time\" style=\"font-size:0.8em\"></span><br>";
 
         echo "</div>";
