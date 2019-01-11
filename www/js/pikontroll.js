@@ -173,6 +173,8 @@ function process_image() {
     if (!processing_image)
         return;
 
+    let starttime = Date.now();
+
     // load image data via canvas
     let canvas = document.createElement("canvas");
     let im = document.getElementById('mjpeg_dest');
@@ -235,4 +237,7 @@ function process_image() {
     // restore image data via canvas
     ctx.putImageData(data, 0, 0);
     $('#processed_img').attr('src', canvas.toDataURL("image/png"));
+
+    let timetaken = Date.now() - starttime;
+    $('#proc-time').text(timetaken + " ms");
 }

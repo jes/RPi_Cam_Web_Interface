@@ -148,6 +148,7 @@
         echo "<input type=\"checkbox\" id=\"proc-enable-min\"> Min: <input type=\"number\" id=\"proc-min\" value=\"0\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-max\"> Max: <input type=\"number\" id=\"proc-max\" value=\"0\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-grey\"> Greyscale: <select id=\"proc-greyscale\"><option>R</option><option>G</option><option>B</option><option>Mean</option></select><br>";
+        echo "<span id=\"proc-time\" style=\"font-size:0.8em\"></span><br>";
 
         echo "</div>";
     }
