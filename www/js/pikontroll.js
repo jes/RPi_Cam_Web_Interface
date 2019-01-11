@@ -157,7 +157,7 @@ function check_image_processing() {
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
 
-    processing_image = (min_enabled || max_enabled || grey_enabled || antivig_enabled);
+    processing_image = (need_autostretch || min_enabled || max_enabled || grey_enabled || antivig_enabled);
     if (processing_image) {
         $('#mjpeg_dest').hide();
         $('#processed_img').show();
@@ -190,8 +190,8 @@ function process_image() {
     var data = ctx.getImageData(0, 0, im.width, im.height);
 
     // load settings
-    let pixmin = $('#proc-min').val();
-    let pixmax = $('#proc-max').val();
+    let pixmin = parseInt($('#proc-min').val());
+    let pixmax = parseInt($('#proc-max').val());
     let min_enabled = $('#proc-enable-min').is(':checked');
     let max_enabled = $('#proc-enable-max').is(':checked');
     if (!min_enabled) pixmin = 0;
@@ -205,13 +205,15 @@ function process_image() {
     let greymode = $('#proc-greyscale').val();
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
 
+    let allvals = [];
+
     // this function applies our processing steps to a given brightness value at a given x,y coordinate
     let process_pixel = function(x, y, col) {
         if (antivig_enabled) {
             let dx = 0.5 - (x / im.width);
-            let dy = (y-im.height/2)/(im.width);
-            let r = Math.sqrt(dx*dx+dy*dy);
-            col = col * antivig_k * (-r + antivig_c);
+            let dy = 0.5 - (y / im.height);
+            let r = dx*dx+dy*dy;
+            col = col * antivig_k * (-rsqr + antivig_c);
 
             if (col < 0) col = 0;
             if (col > 255) col = 255;
@@ -231,7 +233,6 @@ function process_image() {
 
     // modify image data
     pix = data.data;
-    let allvals = [];
     for (let y = 0; y < im.height; y++) {
         for (let x = 0; x < im.width; x++) {
             if (grey_enabled) {
