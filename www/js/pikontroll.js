@@ -211,7 +211,7 @@ function process_image() {
     let process_pixel = function(x, y, col) {
         if (antivig_enabled) {
             let dx = 0.5 - (x / im.width);
-            let dy = 0.5 - (y / im.height);
+            let dy = (y-im.height/2)/(im.width);
             let rsqr = dx*dx+dy*dy;
             col = col * antivig_k * (-rsqr + antivig_c);
 
