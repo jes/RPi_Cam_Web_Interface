@@ -155,8 +155,9 @@ function check_image_processing() {
     let min_enabled = $('#proc-enable-min').is(':checked');
     let max_enabled = $('#proc-enable-max').is(':checked');
     let grey_enabled = $('#proc-enable-grey').is(':checked');
+    let antivig_enabled = $('#proc-anti-vignette').is(':checked');
 
-    processing_image = (min_enabled || max_enabled || grey_enabled);
+    processing_image = (min_enabled || max_enabled || grey_enabled || antivig_enabled);
     if (processing_image) {
         $('#mjpeg_dest').hide();
         $('#processed_img').show();
@@ -167,6 +168,10 @@ function check_image_processing() {
 }
 
 $('#mjpeg_dest').on('load', process_image);
+
+var antivig_k = 0.5;
+var antivig_c = 2;
+let need_autostretch = false;
 
 function process_image() {
     check_image_processing();
@@ -198,25 +203,39 @@ function process_image() {
     if (pixmin > pixmax) pixmin = pixmax;
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let greymode = $('#proc-greyscale').val();
+    let antivig_enabled = $('#proc-anti-vignette').is(':checked');
+
+    // this function applies our processing steps to a given brightness value at a given x,y coordinate
+    let process_pixel = function(x, y, col) {
+        if (antivig_enabled) {
+            let dx = 0.5 - (x / im.width);
+            let dy = (y-im.height/2)/(im.width);
+            let r = Math.sqrt(dx*dx+dy*dy);
+            col = col * antivig_k * (-r + antivig_c);
+
+            if (col < 0) col = 0;
+            if (col > 255) col = 255;
+            col = col;
+        }
+
+        // TODO: if dark subtraction enabled, subtract dark pixels now
+
+        if (need_autostretch)
+            allvals.push(col);
+
+        col = (col-pixmin) * 255/(pixmax-pixmin);
+        if (col < 0) col = 0;
+        if (col > 255) col = 255;
+        return col;
+    };
 
     // modify image data
     pix = data.data;
+    let allvals = [];
     for (let y = 0; y < im.height; y++) {
         for (let x = 0; x < im.width; x++) {
-            // r,g,b channels:
-            for (let c = 0; c < 3; c++) {
-                // TODO: if dark subtraction enabled, subtract dark pixels now
-
-                let idx = 4 * (y*im.width + x) + c;
-                let v = (pix[idx]-pixmin) * 255/(pixmax-pixmin);
-                if (v < 0)
-                    v = 0;
-                if (v > 255)
-                    v = 255;
-                pix[idx] = v;
-            }
-
             if (grey_enabled) {
+                // greyscale mode: apply grey scale filter and then process just one channel
                 let v = 0;
                 let idx = 4 * (y*im.width + x);
                 switch(greymode) {
@@ -226,52 +245,43 @@ function process_image() {
                     case 'Mean': v = (pix[idx+0]+pix[idx+1]+pix[idx+2])/3; break;
                 }
 
-                // overwrite all 3 channels
+                v = process_pixel(x, y, v);
+
+                // write all 3 channels
                 pix[idx++] = v;
                 pix[idx++] = v;
                 pix[idx] = v;
+            } else {
+                // colour mode: process each channel individually
+                for (let c = 0; c < 3; c++) {
+                    let idx = 4 * (y*im.width + x) + c;
+                    pix[idx] = process_pixel(x, y, pix[idx]);
+                }
             }
         }
     }
 
-    // restore image data via canvas
-    ctx.putImageData(data, 0, 0);
-    $('#processed_img').attr('src', canvas.toDataURL("image/png"));
+    if (need_autostretch) {
+        allvals.sort();
+        let pixmin = Math.round(allvals[allvals.length * 0.05]);
+        let pixmax = Math.round(allvals[allvals.length * 0.95]);
+        $('#proc-min').val(pixmin);
+        $('#proc-enable-min').prop('checked',true);
+        $('#proc-max').val(pixmax);
+        $('#proc-enable-max').prop('checked',true);
+        need_autostretch = false;
+        // HACK: now we have our auto-stretch parameters, let's run this function again to do the processing
+        process_image();
+    } else {
+        // restore image data via canvas
+        ctx.putImageData(data, 0, 0);
+        $('#processed_img').attr('src', canvas.toDataURL("image/png"));
 
-    let timetaken = Date.now() - starttime;
-    $('#proc-time').text(timetaken + " ms");
+        let timetaken = Date.now() - starttime;
+        $('#proc-time').text(timetaken + " ms");
+    }
 }
 
 $('#autostretch').click(function() {
-    // load image data via canvas
-    let canvas = document.createElement("canvas");
-    let im = document.getElementById('mjpeg_dest');
-    canvas.width = im.width;
-    canvas.height = im.height;
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(im,0,0);
-    var data = ctx.getImageData(0, 0, im.width, im.height);
-
-    // find out 95th percentile light and dark values
-    let allvals = [];
-
-    pix = data.data;
-    for (let y = 0; y < im.height; y++) {
-        for (let x = 0; x < im.width; x++) {
-            // r,g,b channels:
-            for (let c = 0; c < 3; c++) {
-                let idx = 4 * (y*im.width + x) + c;
-                allvals.push(pix[idx]);
-            }
-        }
-    }
-    allvals.sort();
-    let pixmin = allvals[allvals.length * 0.05];
-    let pixmax = allvals[allvals.length * 0.95];
-
-    // update settings
-    $('#proc-min').val(pixmin);
-    $('#proc-enable-min').prop('checked',true);
-    $('#proc-max').val(pixmax);
-    $('#proc-enable-max').prop('checked',true);
+    need_autostretch = true;
 });
