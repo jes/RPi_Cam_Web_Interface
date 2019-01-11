@@ -368,6 +368,23 @@
                   <div class="panel-body">
                      <table class="settingsTable">
                         <tr>
+                           <td>Shutter speed (0...330000), default 0:</td>
+                           <td><?php makeInput('shutter_speed', 4); ?><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
+                           </td>
+                        </tr>
+                        <tr>
+                           <td>ISO (100...800), default 0:</td>
+                           <td><?php makeInput('iso', 4); ?><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
+                        </tr>
+                        <tr>
+                           <td>Raw Layer, default: 'off'</td>
+                           <td><select onchange="send_cmd('rl ' + this.value)"><?php makeOptions($options_rl, 'raw_layer'); ?></select></td>
+                        </tr>
+                        <tr>
+                           <td>Image Effect, default 'none':</td>
+                           <td><select onchange="send_cmd('ie ' + this.value)"><?php makeOptions($options_ie, 'image_effect'); ?></select></td>
+                        </tr>
+                        <tr>
                            <td>Resolutions:</td>
                            <td>Load Preset: <select onchange="set_preset(this.value)">
 								<?php if(!file_exists('uPresets.html')) : ?>
@@ -452,10 +469,6 @@
                            <td><?php makeInput('saturation', 4); ?><input type="button" value="OK" onclick="send_cmd('sa ' + document.getElementById('saturation').value)"></td>
                         </tr>
                         <tr>
-                           <td>ISO (100...800), default 0:</td>
-                           <td><?php makeInput('iso', 4); ?><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
-                        </tr>
-                        <tr>
                            <td>Metering Mode, default 'average':</td>
                            <td><select onchange="send_cmd('mm ' + this.value)"><?php makeOptions($options_mm, 'metering_mode'); ?></select></td>
                         </tr>
@@ -480,10 +493,6 @@
                            <td> gain_r <?php makeInput('ag_r', 4, 'autowbgain_r'); ?> gain_b <?php makeInput('ag_b', 4, 'autowbgain_b'); ?>
                               <input type="button" value="OK" onclick="set_ag();">
                            </td>
-                        </tr>
-                        <tr>
-                           <td>Image Effect, default 'none':</td>
-                           <td><select onchange="send_cmd('ie ' + this.value)"><?php makeOptions($options_ie, 'image_effect'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Colour Effect, default 'disabled':</td>
@@ -511,11 +520,6 @@
                            </td>
                         </tr>
                         <tr>
-                           <td>Shutter speed (0...330000), default 0:</td>
-                           <td><?php makeInput('shutter_speed', 4); ?><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
-                           </td>
-                        </tr>
-                        <tr>
                            <td>Image quality (0...100), default 10:</td>
                            <td>
                               <?php makeInput('image_quality', 4); ?><input type="button" value="OK" onclick="send_cmd('qu ' + document.getElementById('image_quality').value)">
@@ -529,10 +533,6 @@
                               Di: <?php makeInput('divider', 4); ?>
                               <input type="button" value="OK" onclick="set_preview();">
                            </td>
-                        </tr>
-                        <tr>
-                           <td>Raw Layer, default: 'off'</td>
-                           <td><select onchange="send_cmd('rl ' + this.value)"><?php makeOptions($options_rl, 'raw_layer'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Video bitrate (0...25000000), default 17000000:</td>
