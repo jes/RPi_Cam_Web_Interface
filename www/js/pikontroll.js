@@ -154,8 +154,9 @@ let processing_image = false;
 function check_image_processing() {
     let min_enabled = $('#proc-enable-min').is(':checked');
     let max_enabled = $('#proc-enable-max').is(':checked');
+    let grey_enabled = $('#proc-enable-grey').is(':checked');
 
-    processing_image = (min_enabled || max_enabled);
+    processing_image = (min_enabled || max_enabled || grey_enabled);
     if (processing_image) {
         $('#mjpeg_dest').hide();
         $('#processed_img').show();
@@ -193,6 +194,8 @@ function process_image() {
     if (pixmax < 0) pixmax = 0;
     if (pixmax > 255) pixmax = 255;
     if (pixmin > pixmax) pixmin = pixmax;
+    let grey_enabled = $('#proc-enable-grey').is(':checked');
+    let greymode = $('#proc-greyscale').val();
 
     // modify image data
     pix = data.data;
@@ -211,7 +214,21 @@ function process_image() {
                 pix[idx] = v;
             }
 
-            // TODO: if greyscale, apply greyscale now
+            if (grey_enabled) {
+                let v = 0;
+                let idx = 4 * (y*im.width + x);
+                switch(greymode) {
+                    case 'R': v = pix[idx+0]; break;
+                    case 'G': v = pix[idx+1]; break;
+                    case 'B': v = pix[idx+2]; break;
+                    case 'Mean': v = (pix[idx+0]+pix[idx+1]+pix[idx+2])/3; break;
+                }
+
+                // overwrite all 3 channels
+                pix[idx++] = v;
+                pix[idx++] = v;
+                pix[idx] = v;
+            }
         }
     }
 
