@@ -140,6 +140,14 @@
         echo "<span id=\"pkt-coords\" style=\"font-size:0.8em\"></span>";
         echo "</div>";
 
+        echo "<div style=\"clear:both\"></div>";
+
+        echo "<hr>";
+
+        echo "<p>Preview processing</p>";
+        echo "<input type=\"checkbox\" id=\"proc-enable-min\"> Min: <input type=\"number\" id=\"proc-min\" value=\"0\"><br>";
+        echo "<input type=\"checkbox\" id=\"proc-enable-max\"> Max: <input type=\"number\" id=\"proc-max\" value=\"0\"><br>";
+
         echo "</div>";
     }
 
@@ -339,6 +347,7 @@
          <?php pikontroll_controls(); ?>
          <div><img id="mjpeg_dest" <?php echo getLoadClass() . getImgWidth();?>
 		 <?php if(file_exists("pipan_on")) echo "ontouchstart=\"pipan_start()\""; ?> onclick="toggle_fullscreen(this);" src="./loading.jpg"></div>
+         <img id="processed_img" style="display:none">
          <div id="main-buttons">
             <input id="video_button" type="button" class="btn btn-primary" <?php getdisplayStyle('actions', $userLevel); ?>>
             <input id="image_button" type="button" class="btn btn-primary" <?php getdisplayStyle('actions', $userLevel); ?>>

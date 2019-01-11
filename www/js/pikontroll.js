@@ -147,3 +147,75 @@ function pikontroll(cmd, cb) {
         },
     });
 }
+
+// image processing:
+let processing_image = false;
+
+function check_image_processing() {
+    let min_enabled = $('#proc-enable-min').is(':checked');
+    let max_enabled = $('#proc-enable-max').is(':checked');
+
+    processing_image = (min_enabled || max_enabled);
+    if (processing_image) {
+        $('#mjpeg_dest').hide();
+        $('#processed_img').show();
+    } else {
+        $('#mjpeg_dest').show();
+        $('#processed_img').hide();
+    }
+}
+
+$('#mjpeg_dest').on('load', process_image);
+
+function process_image() {
+    check_image_processing();
+    if (!processing_image)
+        return;
+
+    // load image data via canvas
+    let canvas = document.createElement("canvas");
+    let im = document.getElementById('mjpeg_dest');
+    canvas.width = im.width;
+    canvas.height = im.height;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(im,0,0);
+    var data = ctx.getImageData(0, 0, im.width, im.height);
+
+    // load settings
+    let pixmin = $('#proc-min').val();
+    let pixmax = $('#proc-max').val();
+    let min_enabled = $('#proc-enable-min').is(':checked');
+    let max_enabled = $('#proc-enable-max').is(':checked');
+    if (!min_enabled) pixmin = 0;
+    if (!max_enabled) pixmax = 255;
+    if (pixmin < 0) pixmin = 0;
+    if (pixmin > 255) pixmin = 255;
+    if (pixmax < 0) pixmax = 0;
+    if (pixmax > 255) pixmax = 255;
+    if (pixmin > pixmax) pixmin = pixmax;
+
+    // modify image data
+    pix = data.data;
+    for (let y = 0; y < im.height; y++) {
+        for (let x = 0; x < im.width; x++) {
+            // r,g,b channels:
+            for (let c = 0; c < 3; c++) {
+                // TODO: if dark subtraction enabled, subtract dark pixels now
+
+                let idx = 4 * (y*im.width + x) + c;
+                let v = (pix[idx]-pixmin) * 255/(pixmax-pixmin);
+                if (v < 0)
+                    v = 0;
+                if (v > 255)
+                    v = 255;
+                pix[idx] = v;
+            }
+
+            // TODO: if greyscale, apply greyscale now
+        }
+    }
+
+    // restore image data via canvas
+    ctx.putImageData(data, 0, 0);
+    $('#processed_img').attr('src', canvas.toDataURL("image/png"));
+}
