@@ -241,3 +241,37 @@ function process_image() {
     let timetaken = Date.now() - starttime;
     $('#proc-time').text(timetaken + " ms");
 }
+
+$('#autostretch').click(function() {
+    // load image data via canvas
+    let canvas = document.createElement("canvas");
+    let im = document.getElementById('mjpeg_dest');
+    canvas.width = im.width;
+    canvas.height = im.height;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(im,0,0);
+    var data = ctx.getImageData(0, 0, im.width, im.height);
+
+    // find out 95th percentile light and dark values
+    let allvals = [];
+
+    pix = data.data;
+    for (let y = 0; y < im.height; y++) {
+        for (let x = 0; x < im.width; x++) {
+            // r,g,b channels:
+            for (let c = 0; c < 3; c++) {
+                let idx = 4 * (y*im.width + x) + c;
+                allvals.push(pix[idx]);
+            }
+        }
+    }
+    allvals.sort();
+    let pixmin = allvals[allvals.length * 0.05];
+    let pixmax = allvals[allvals.length * 0.95];
+
+    // update settings
+    $('#proc-min').val(pixmin);
+    $('#proc-enable-min').prop('checked',true);
+    $('#proc-max').val(pixmax);
+    $('#proc-enable-max').prop('checked',true);
+});
