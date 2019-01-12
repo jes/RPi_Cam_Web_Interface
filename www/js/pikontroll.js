@@ -228,7 +228,7 @@ function process_image() {
             let r = Math.sqrt(dx*dx+dy*dy);
             // look up from the map: x=r*255, y=255-col)
             let mapx = Math.round(r*255);
-            let mapy = 255-col;
+            let mapy = Math.round(255-col);
             col = col*(1-antivig_amt) + antivig_map[4*(mapy*256 + mapx)]*antivig_amt;
         }
 
