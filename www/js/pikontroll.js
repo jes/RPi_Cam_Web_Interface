@@ -174,8 +174,7 @@ $('#autostretch').click(function() {
     need_autostretch = true;
 });
 
-var antivig_k = 0.5;
-var antivig_c = 2;
+let antivig_map;
 let need_autostretch = false;
 
 function process_image() {
@@ -209,6 +208,7 @@ function process_image() {
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let greymode = $('#proc-greyscale').val();
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
+    let antivig_amt = $('#proc-antivig-amt').val()/100;
     let histogram_enabled = $('#proc-histogram').is(':checked');
 
     let allvals = [];
@@ -222,16 +222,14 @@ function process_image() {
 
     // this function applies our processing steps to a given brightness value at a given x,y coordinate
     let process_pixel = function(x, y, col) {
-        if (antivig_enabled) {
+        if (antivig_enabled && antivig_map) {
             let dx = 0.5 - (x / im.width);
             let dy = (y-im.height/2)/(im.width);
-            let rsqr = dx*dx+dy*dy;
-            col *= antivig_k * (-rsqr + antivig_c);
-
-            col = Math.round(col);
-
-            if (col < 0) col = 0;
-            if (col > 255) col = 255;
+            let r = Math.sqrt(dx*dx+dy*dy);
+            // look up from the map: x=r*255, y=255-col)
+            let mapx = Math.round(r*255);
+            let mapy = 255-col;
+            col = col*(1-antivig_amt) + antivig_map[4*(mapy*256 + mapx)]*antivig_amt;
         }
 
         // TODO: if dark subtraction enabled, subtract dark pixels now
@@ -341,3 +339,18 @@ function draw_histogram(hist, pixmin, pixmax) {
         }
     }
 }
+
+// load the anti-vignette map
+$('#proc-anti-vignette').prop('disabled',true);
+$('#proc-anti-vignette').prop('checked',false);
+var antivig_img = new Image();
+antivig_img.src = 'antivignette-map.png';
+antivig_img.onload = function() {
+    let canv = document.createElement("canvas");
+    canv.width = 256;
+    canv.height = 256;
+    let ctx = canv.getContext('2d');
+    ctx.drawImage(antivig_img, 0, 0);
+    antivig_map = ctx.getImageData(0, 0, 256, 256).data;
+    $('#proc-anti-vignette').prop('disabled',false);
+};

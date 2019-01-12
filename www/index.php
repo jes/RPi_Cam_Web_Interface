@@ -149,7 +149,7 @@
         echo "<input type=\"checkbox\" id=\"proc-enable-max\"> Max: <input type=\"number\" id=\"proc-max\" value=\"0\"><br>";
         echo "<button style=\"font-size:0.8em\" id=\"autostretch\">Auto-stretch</button><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-grey\"> Greyscale: <select id=\"proc-greyscale\"><option>R</option><option>G</option><option>B</option><option>Mean</option></select><br>";
-        echo "<input type=\"checkbox\" id=\"proc-anti-vignette\"> Anti-vignette<br>";
+        echo "<input type=\"checkbox\" id=\"proc-anti-vignette\"> Anti-vignette <input style=\"width:100px;display:inline-block\" type=\"range\" id=\"proc-antivig-amt\" min=\"0\" max=\"100\" step=\"1\" value=\"50\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-histogram\"> Histogram<br>";
         echo "<canvas id=\"histogram\" width=\"255\" height=\"100\" style=\"display:none;border:solid 1px black\"></canvas><br>";
         echo "<span id=\"proc-time\" style=\"font-size:0.8em\"></span><br>";
