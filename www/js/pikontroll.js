@@ -46,8 +46,14 @@ window.setInterval(function() {
             let ra_secs = Math.floor(ra*100)/100;
             let ra_str = ra_hrs + "h " + ra_mins + "m " + ra_secs + "s";
 
+            let sign = 1;
+            if (dec < 0) {
+                sign = -1;
+                dec = -dec;
+            }
             let dec_deg = Math.floor(dec);
             dec -= dec_deg;
+            dec_deg *= sign;
             dec *= 60;
             let dec_mins = Math.floor(dec);
             dec -= dec_mins;
