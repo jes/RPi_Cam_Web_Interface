@@ -128,23 +128,22 @@
         echo "</td><td></td></tr>";
         echo "</table>";
         echo "<button id=\"pkt-receive\">Receive current coords from Stellarium</button>";
-
         echo "<hr>";
 
-        echo "<div style=\"float:left\">";
-        echo "<label for=\"pkt-focus\">Focus:</label>";
+        echo "<a href=\"#\" id=\"pkt-focus-div-toggle\">&#9660; Focus</a><br>";
+        echo "<div id=\"pkt-focus-div\" style=\"display:none\">";
         echo "<input type=\"range\" id=\"pkt-focus\" min=\"0\" max=\"0\" step=\"1\" value=\"0\">";
-        echo "</div>";
-
-        echo "<div style=\"float:right; padding-left: 10px\">";
-        echo "<span id=\"pkt-coords\"></span>";
-        echo "</div>";
-
-        echo "<div style=\"clear:both\"></div>";
-
         echo "<hr>";
+        echo "</div>";
 
-        echo "<p>Preview processing</p>";
+        echo "<a href=\"#\" id=\"pkt-goto-div-toggle\">&#9660; GoTo</a><br>";
+        echo "<div id=\"pkt-goto-div\" style=\"display:none\">";
+        echo "<span id=\"pkt-coords\"></span>";
+        echo "<hr>";
+        echo "</div>";
+
+        echo "<a href=\"#\" id=\"pkt-preview-div-toggle\">&#9660; Preview processing</a><br>";
+        echo "<div id=\"pkt-preview-div\" style=\"display:none\">";
         echo "<input type=\"checkbox\" id=\"proc-enable-min\"> Min: <input type=\"number\" id=\"proc-min\" value=\"0\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-max\"> Max: <input type=\"number\" id=\"proc-max\" value=\"0\"><br>";
         echo "<button id=\"autostretch\">Auto-stretch</button><br>";
@@ -153,6 +152,7 @@
         echo "<input type=\"checkbox\" id=\"proc-histogram\"> Histogram<br>";
         echo "<canvas id=\"histogram\" width=\"255\" height=\"100\" style=\"display:none;border:solid 1px black\"></canvas><br>";
         echo "<span id=\"proc-time\"></span><br>";
+        echo "</div>";
 
         echo "</div>";
     }

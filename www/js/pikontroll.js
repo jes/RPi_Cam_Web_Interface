@@ -354,3 +354,16 @@ antivig_img.onload = function() {
     antivig_map = ctx.getImageData(0, 0, 256, 256).data;
     $('#proc-anti-vignette').prop('disabled',false);
 };
+
+// toggle ui divs
+$('#pkt-focus-div-toggle').click(function() {
+    $('#pkt-focus-div').toggle();
+});
+
+$('#pkt-goto-div-toggle').click(function() {
+    $('#pkt-goto-div').toggle();
+});
+
+$('#pkt-preview-div-toggle').click(function() {
+    $('#pkt-preview-div').toggle();
+});
