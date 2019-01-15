@@ -277,8 +277,8 @@ function process_image() {
 
     if (need_autostretch) {
         allvals.sort(function(a,b) { return parseInt(a) > parseInt(b); });
-        let pixmin = Math.round(allvals[Math.round(allvals.length * 0.01)]);
-        let pixmax = Math.round(allvals[Math.round(allvals.length * 0.99)]);
+        let pixmin = Math.round(allvals[Math.round(allvals.length * 0.05)]);
+        let pixmax = Math.round(allvals[Math.round(allvals.length * 0.95)]);
         $('#proc-min').val(pixmin);
         $('#proc-enable-min').prop('checked',true);
         $('#proc-max').val(pixmax);
