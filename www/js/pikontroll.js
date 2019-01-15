@@ -12,7 +12,7 @@ $('#pkt-pause-tracking').click(function() {
     }
 });
 
-// coords
+// alt/az coords
 let pkt_coords_in_flight = false;
 window.setInterval(function() {
     if (!pkt_coords_in_flight) {
@@ -21,12 +21,57 @@ window.setInterval(function() {
             let match = /ok: coords (-?\d*\.?\d+) (-?\d*\.?\d+)/.exec(data);
             let alt = match[1];
             let az = match[2];
-            $('#pkt-coords').html("(" + (Math.round(alt*1000)/1000) + ",<br>" + (Math.round(az*1000)/1000) + ")");
+            $('#pkt-coords').html("(" + (Math.round(alt*1000)/1000) + "&deg;, " + (Math.round(az*1000)/1000) + "&deg;)");
             pkt_coords_in_flight = false;
         });
     }
 }, 1000);
 
+// ra/dec coords
+let pkt_radec_in_flight = false;
+window.setInterval(function() {
+    if (!pkt_radec_in_flight) {
+        pkt_radec_in_flight = true;
+        pikontroll("radec", function(data, status, xhr) {
+            let match = /ok: radec (-?\d*\.?\d+) (-?\d*\.?\d+)/.exec(data);
+            let ra = match[1];
+            let dec = match[2];
+
+            let ra_hrs = Math.floor(ra);
+            ra -= ra_hrs;
+            ra *= 60;
+            let ra_mins = Math.floor(ra);
+            ra -= ra_mins;
+            ra *= 60;
+            let ra_secs = Math.floor(ra*100)/100;
+            let ra_str = ra_hrs + "h " + ra_mins + "m " + ra_secs + "s";
+
+            let dec_deg = Math.floor(dec);
+            dec -= dec_deg;
+            dec *= 60;
+            let dec_mins = Math.floor(dec);
+            dec -= dec_mins;
+            dec *= 60;
+            let dec_secs = Math.floor(dec*100)/100;
+            let dec_str = dec_deg + "&deg; " + dec_mins + "' " + dec_secs + "\"";
+            $('#pkt-radec').html("(" + ra_str + ", " + dec_str + ")");
+            pkt_radec_in_flight = false;
+        });
+    }
+}, 1000);
+
+// goto
+$('#pkt-altaz-goto').click(function() {
+    let altdegrees = $('#pkt-altaz-alt').val();
+    let azdegrees = $('#pkt-altaz-alt').val();
+    pikontroll("coords " + altdegrees + " " + azdegrees);
+});
+
+$('#pkt-radec-goto').click(function() {
+    let ra = parseFloat($('#pkt-ra-hrs').val()) + parseFloat($('#pkt-ra-mins').val())/60 + parseFloat($('#pkt-ra-secs').val())/3600;
+    let dec = parseFloat($('#pkt-dec-degs').val()) + parseFloat($('#pkt-dec-mins').val())/60 + parseFloat($('#pkt-dec-secs').val())/3600;
+    pikontroll("radec " + ra + " " + dec);
+});
 
 // trim
 let pkt_trim_in_flight = [false, false];

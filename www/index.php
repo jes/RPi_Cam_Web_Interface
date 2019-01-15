@@ -138,7 +138,17 @@
 
         echo "<a href=\"#\" id=\"pkt-goto-div-toggle\">&#9660; GoTo</a><br>";
         echo "<div id=\"pkt-goto-div\" style=\"display:none\">";
-        echo "<span id=\"pkt-coords\"></span>";
+        echo "(Alt,Az): <span id=\"pkt-coords\">unknown</span><br>";
+        echo "(RA,Dec): <span id=\"pkt-radec\">unknown</span><br>";
+        echo "Alt: <input type=\"text\" size=\"5\" id=\"pkt-altaz-alt\">&deg; Az: <input type=\"text\" size=\"5\" id=\"pkt-altaz-az\">&deg; <button id=\"pkt-altaz-goto\">GoTo</button><br>";
+        echo "<div style=\"float:left\">";
+        echo "RA: <input type=\"text\" size=\"2\" id=\"pkt-ra-hrs\">h <input type=\"text\" size=\"2\" id=\"pkt-ra-mins\">m <input type=\"text\" size=\"2\" id=\"pkt-ra-secs\">s<br>";
+        echo "Dec: <input type=\"text\" size=\"2\" id=\"pkt-dec-degs\">&deg; <input type=\"text\" size=\"2\" id=\"pkt-dec-mins\">' <input type=\"text\" size=\"2\" id=\"pkt-dec-secs\">s";
+        echo "</div>";
+        echo "<div style=\"float:left\">";
+        echo "<button style=\"margin-top:20px; margin-left:5px\" id=\"pkt-radec-goto\">Go<br>To</button><br>";
+        echo "</div>";
+        echo "<div style=\"clear:both\"></div>";
         echo "<hr>";
         echo "</div>";
 
