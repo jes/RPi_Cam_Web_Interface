@@ -143,7 +143,7 @@
         echo "Alt: <input type=\"text\" size=\"5\" id=\"pkt-altaz-alt\">&deg; Az: <input type=\"text\" size=\"5\" id=\"pkt-altaz-az\">&deg; <button id=\"pkt-altaz-goto\">GoTo</button><br>";
         echo "<div style=\"float:left\">";
         echo "RA: <input type=\"text\" size=\"2\" id=\"pkt-ra-hrs\">h <input type=\"text\" size=\"2\" id=\"pkt-ra-mins\">m <input type=\"text\" size=\"2\" id=\"pkt-ra-secs\">s<br>";
-        echo "Dec: <input type=\"text\" size=\"2\" id=\"pkt-dec-degs\">&deg; <input type=\"text\" size=\"2\" id=\"pkt-dec-mins\">' <input type=\"text\" size=\"2\" id=\"pkt-dec-secs\">s";
+        echo "Dec: <input type=\"text\" size=\"2\" id=\"pkt-dec-degs\">&deg; <input type=\"text\" size=\"2\" id=\"pkt-dec-mins\">' <input type=\"text\" size=\"2\" id=\"pkt-dec-secs\">\"";
         echo "</div>";
         echo "<div style=\"float:left\">";
         echo "<button style=\"margin-top:20px; margin-left:5px\" id=\"pkt-radec-goto\">Go<br>To</button><br>";
