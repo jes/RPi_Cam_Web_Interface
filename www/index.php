@@ -105,39 +105,39 @@
             return;
         }
 
-        echo "<div style=\"float:left; border:solid 1px #ccc; padding: 10px\">";
+        echo "<div style=\"float:left; border:solid 1px #ccc; padding: 10px; font-size:0.8em\">";
         echo "<p>PiKonTroll</p>";
 
-        echo "<button style=\"font-size: 0.8em; width: 120px\" id=\"pkt-pause-tracking\">Pause tracking</button>";
+        echo "<button style=\"width: 120px\" id=\"pkt-pause-tracking\">Pause tracking</button>";
         echo " | ";
-        echo "<input style=\"font-size:0.8em; width: 100px\" type=\"text\" id=\"pkt-trim-steps\" value=\"1000\">";
+        echo "<input style=\"width: 100px\" type=\"text\" id=\"pkt-trim-steps\" value=\"1000\">";
 
         echo "<br>";
 
         echo "<table>";
         echo "<tr><td></td><td>";
-        echo "<button style=\"font-size: 0.8em\" id=\"pkt-up\">&#9650;</button>";
-        echo "</td><td><span id=\"pkt-1-trim\" style=\"font-size: 0.8em\"></span> <button style=\"font-size:0.8em\" id=\"pkt-1-zero\">0</button></td></tr>";
+        echo "<button id=\"pkt-up\">&#9650;</button>";
+        echo "</td><td><span id=\"pkt-1-trim\"></span> <button id=\"pkt-1-zero\">0</button></td></tr>";
         echo "<tr><td>";
-        echo "<button style=\"font-size: 0.8em\" id=\"pkt-left\">&#9664;</button>";
+        echo "<button id=\"pkt-left\">&#9664;</button>";
         echo "</td><td></td><td>";
-        echo "<button style=\"font-size: 0.8em\" id=\"pkt-right\">&#9654;</button>";
-        echo " <span id=\"pkt-0-trim\" style=\"font-size: 0.8em\"></span> <button style=\"font-size:0.8em\" id=\"pkt-0-zero\">0</button></td></tr>";
+        echo "<button id=\"pkt-right\">&#9654;</button>";
+        echo " <span id=\"pkt-0-trim\"></span> <button id=\"pkt-0-zero\">0</button></td></tr>";
         echo "<tr><td></td><td>";
-        echo "<button style=\"font-size: 0.8em\" id=\"pkt-down\">&#9660;</button>";
+        echo "<button id=\"pkt-down\">&#9660;</button>";
         echo "</td><td></td></tr>";
         echo "</table>";
-        echo "<button style=\"font-size: 0.8em\" id=\"pkt-receive\">Receive current coords from Stellarium</button>";
+        echo "<button id=\"pkt-receive\">Receive current coords from Stellarium</button>";
 
         echo "<hr>";
 
         echo "<div style=\"float:left\">";
-        echo "<label for=\"pkt-focus\" style=\"font-size:0.8em\">Focus:</label>";
+        echo "<label for=\"pkt-focus\">Focus:</label>";
         echo "<input type=\"range\" id=\"pkt-focus\" min=\"0\" max=\"0\" step=\"1\" value=\"0\">";
         echo "</div>";
 
         echo "<div style=\"float:right; padding-left: 10px\">";
-        echo "<span id=\"pkt-coords\" style=\"font-size:0.8em\"></span>";
+        echo "<span id=\"pkt-coords\"></span>";
         echo "</div>";
 
         echo "<div style=\"clear:both\"></div>";
@@ -147,12 +147,12 @@
         echo "<p>Preview processing</p>";
         echo "<input type=\"checkbox\" id=\"proc-enable-min\"> Min: <input type=\"number\" id=\"proc-min\" value=\"0\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-max\"> Max: <input type=\"number\" id=\"proc-max\" value=\"0\"><br>";
-        echo "<button style=\"font-size:0.8em\" id=\"autostretch\">Auto-stretch</button><br>";
+        echo "<button id=\"autostretch\">Auto-stretch</button><br>";
         echo "<input type=\"checkbox\" id=\"proc-enable-grey\"> Greyscale: <select id=\"proc-greyscale\"><option>R</option><option>G</option><option>B</option><option>Mean</option></select><br>";
         echo "<input type=\"checkbox\" id=\"proc-anti-vignette\"> Anti-vignette <input style=\"width:100px;display:inline-block\" type=\"range\" id=\"proc-antivig-amt\" min=\"0\" max=\"100\" step=\"1\" value=\"50\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-histogram\"> Histogram<br>";
         echo "<canvas id=\"histogram\" width=\"255\" height=\"100\" style=\"display:none;border:solid 1px black\"></canvas><br>";
-        echo "<span id=\"proc-time\" style=\"font-size:0.8em\"></span><br>";
+        echo "<span id=\"proc-time\"></span><br>";
 
         echo "</div>";
     }
