@@ -161,6 +161,7 @@
         echo "<input type=\"checkbox\" id=\"proc-anti-vignette\"> Anti-vignette <input style=\"width:100px;display:inline-block\" type=\"range\" id=\"proc-antivig-amt\" min=\"0\" max=\"100\" step=\"1\" value=\"50\"><br>";
         echo "<input type=\"checkbox\" id=\"proc-histogram\"> Histogram<br>";
         echo "<canvas id=\"histogram\" width=\"255\" height=\"100\" style=\"display:none;border:solid 1px black\"></canvas><br>";
+        echo "<input type=\"checkbox\" id=\"proc-autoguide\"> Auto-guide <input style=\"width:100px;display:inline-block\" type=\"range\" id=\"proc-autoguide-window\" min=\"4\" max=\"256\" step=\"4\" value=\"48\"><br>";
         echo "<span id=\"proc-time\"></span><br>";
         echo "</div>";
 

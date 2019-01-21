@@ -106,9 +106,13 @@ $('#pkt-1-zero').click(function() {
 });
 
 function pkt_add_trim(motor, dir) {
+    pkt_add_trim_steps(motor, parseInt($('#pkt-trim-steps').val()) * dir);
+}
+
+function pkt_add_trim_steps(motor, steps) {
     // if there's already a trim request in-flight, just note that
     // we want to send another once it's done and do nothing else yet
-    pkt_trim[motor] += parseInt($('#pkt-trim-steps').val()) * dir;
+    pkt_trim[motor] += steps;
     $('#pkt-' + motor + '-trim').text((pkt_trim[motor] + pkt_tare[motor]) + "...");
 
     if (pkt_trim_in_flight[motor]) {
@@ -208,8 +212,9 @@ function check_image_processing() {
     let grey_enabled = $('#proc-enable-grey').is(':checked');
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
     let histogram_enabled = $('#proc-histogram').is(':checked');
+    let autoguide_enabled = $('#proc-autoguide').is(':checked');
 
-    processing_image = (need_autostretch || min_enabled || max_enabled || grey_enabled || antivig_enabled || histogram_enabled);
+    processing_image = (need_autostretch || min_enabled || max_enabled || grey_enabled || antivig_enabled || histogram_enabled || autoguide_enabled);
     if (processing_image) {
         $('#mjpeg_dest').hide();
         $('#processed_img').show();
@@ -223,6 +228,62 @@ $('#mjpeg_dest').on('load', process_image);
 
 $('#autostretch').click(function() {
     need_autostretch = true;
+    process_image();
+});
+
+let have_guidestar = false;
+let need_guidestar = false;
+let guidestarx, guidestary;
+let windowx, windowy;
+let xerrors = [];
+let yerrors = [];
+let steps_per_full_width = 100;
+let max_guide_rtt = 3000; // ms - don't send trim updates more often than this
+let max_error_age = 60000; // ms - forget error data once it is more than this old
+let min_data_points = 3; // don't guide with fewer than this many data points
+let last_guide_trim = 0;
+$('#proc-autoguide').prop('checked',false); // turn it off at first load as it needs a guidestar
+$('#proc-autoguide').click(function() {
+    if ($('#proc-autoguide').is(':checked')) {
+        need_guidestar = true;
+        have_guidestar = false;
+        $('html').css('cursor','crosshair');
+        process_image();
+    } else {
+        need_guidestar = false;
+        have_guidestar = false;
+        $('html').css('cursor','default');
+    }
+});
+
+
+function delete_old_guide_data(arr) {
+    while (arr[0][0] < (Date.now() - max_error_age)) {
+        arr.splice(0, 1);
+    }
+}
+
+function mean_guide_error(arr) {
+    let sum = 0;
+    for (let i = 0; i < arr.length; i++)
+        sum += arr[i][1];
+    return sum/arr.length;
+}
+
+$('#processed_img').click(function(e) {
+    if (!need_guidestar)
+        return;
+
+    let pos = $('#processed_img').position();
+
+    windowx = guidestarx = e.clientX - pos.left;
+    windowy = guidestary = e.clientY - pos.top;
+
+    have_guidestar = true;
+    need_guidestar = false;
+    $('html').css('cursor','default');
+
+    process_image();
 });
 
 let antivig_map;
@@ -242,7 +303,8 @@ function process_image() {
     canvas.height = im.height;
     let ctx = canvas.getContext("2d");
     ctx.drawImage(im,0,0);
-    var data = ctx.getImageData(0, 0, im.width, im.height);
+    let data = ctx.getImageData(0, 0, im.width, im.height);
+    let pix = data.data;
 
     // load settings
     let pixmin = parseInt($('#proc-min').val());
@@ -261,6 +323,55 @@ function process_image() {
     let antivig_enabled = $('#proc-anti-vignette').is(':checked');
     let antivig_amt = $('#proc-antivig-amt').val()/100;
     let histogram_enabled = $('#proc-histogram').is(':checked');
+    let autoguide_enabled = $('#proc-autoguide').is(':checked') && have_guidestar;
+    let windowsize = $('#proc-autoguide-window').val();
+
+    // auto-guiding
+    let new_windowx = windowx, new_windowy = windowy;
+    if (autoguide_enabled) {
+        let sumx = 0, sumy = 0, total = 0;
+        for (let y = Math.round(windowy-windowsize/2); y < windowy+windowsize/2; y++) {
+            if (y < 0 || y >= im.height)
+                continue;
+            for (let x = Math.round(windowx-windowsize/2); x < windowx+windowsize/2; x++) {
+                if (x < 0 || x >= im.width)
+                    continue;
+                let idx = 4 * (y*im.width + x);
+                let col = pix[idx] + pix[idx+1] + pix[idx+2]; // r,g,b channels
+                col *= col;
+                sumy += y * col;
+                sumx += x * col;
+                total += col;
+            }
+        }
+        if (total > 0) {
+            new_windowx = sumx / total;
+            new_windowy = sumy / total;
+        }
+
+        xerrors.push([Date.now(), new_windowx - guidestarx]);
+        yerrors.push([Date.now(), new_windowy - guidestary]);
+
+        delete_old_guide_data(xerrors);
+        delete_old_guide_data(yerrors);
+
+        // add some trim
+        if (Date.now() > last_guide_trim + max_guide_rtt && xerrors.length >= min_data_points) {
+            let steps_per_px = steps_per_full_width / im.width;
+            let xerror_steps = Math.round(mean_guide_error(xerrors) * steps_per_px);
+            let yerror_steps = Math.round(mean_guide_error(yerrors) * steps_per_px);
+            if (xerror_steps != 0) {
+                pkt_add_trim_steps(0, -xerror_steps);
+                last_guide_trim = Date.now();
+                xerrors = [];
+            }
+            if (yerror_steps != 0) {
+                pkt_add_trim_steps(1, -yerror_steps);
+                last_guide_trim = Date.now();
+                yerrors = [];
+            }
+        }
+    }
 
     let allvals = [];
     let hist = [];
@@ -296,7 +407,6 @@ function process_image() {
     };
 
     // modify image data
-    pix = data.data;
     for (let y = 0; y < im.height; y++) {
         for (let x = 0; x < im.width; x++) {
             if (grey_enabled) {
@@ -340,6 +450,8 @@ function process_image() {
         return;
     }
 
+    ctx.putImageData(data, 0, 0);
+
     if (histogram_enabled) {
         $('#histogram').show();
         draw_histogram(hist, pixmin, pixmax);
@@ -347,8 +459,33 @@ function process_image() {
         $('#histogram').hide();
     }
 
-    // restore image data via canvas
-    ctx.putImageData(data, 0, 0);
+    if (autoguide_enabled) {
+        ctx.translate(0.5,0.5); // XXX: get crisp pixel-aligned lines
+        ctx.lineWidth = '2';
+
+        // target guidestar location
+        ctx.beginPath();
+        ctx.strokeStyle = '#00f';
+        ctx.arc(guidestarx, guidestary, 4, 0, 2*Math.PI);
+        ctx.stroke();
+
+        // window dimensions
+        ctx.beginPath();
+        ctx.strokeStyle = '#0f0';
+        ctx.rect(Math.round(windowx-windowsize/2), Math.round(windowy-windowsize/2), windowsize, windowsize);
+        ctx.stroke();
+
+        // detected guidestar location
+        ctx.beginPath();
+        ctx.strokeStyle = '#f00';
+        ctx.arc(new_windowx, new_windowy, 4, 0, 2*Math.PI);
+        ctx.stroke();
+
+        // and update window location for next time
+        windowx = new_windowx;
+        windowy = new_windowy;
+    }
+
     $('#processed_img').attr('src', canvas.toDataURL("image/png"));
 
     let timetaken = Date.now() - starttime;
