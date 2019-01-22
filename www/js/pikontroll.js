@@ -326,53 +326,6 @@ function process_image() {
     let autoguide_enabled = $('#proc-autoguide').is(':checked') && have_guidestar;
     let windowsize = $('#proc-autoguide-window').val();
 
-    // auto-guiding
-    let new_windowx = windowx, new_windowy = windowy;
-    if (autoguide_enabled) {
-        let sumx = 0, sumy = 0, total = 0;
-        for (let y = Math.round(windowy-windowsize/2); y < windowy+windowsize/2; y++) {
-            if (y < 0 || y >= im.height)
-                continue;
-            for (let x = Math.round(windowx-windowsize/2); x < windowx+windowsize/2; x++) {
-                if (x < 0 || x >= im.width)
-                    continue;
-                let idx = 4 * (y*im.width + x);
-                let col = pix[idx] + pix[idx+1] + pix[idx+2]; // r,g,b channels
-                col *= col;
-                sumy += y * col;
-                sumx += x * col;
-                total += col;
-            }
-        }
-        if (total > 0) {
-            new_windowx = sumx / total;
-            new_windowy = sumy / total;
-        }
-
-        xerrors.push([Date.now(), new_windowx - guidestarx]);
-        yerrors.push([Date.now(), new_windowy - guidestary]);
-
-        delete_old_guide_data(xerrors);
-        delete_old_guide_data(yerrors);
-
-        // add some trim
-        if (Date.now() > last_guide_trim + max_guide_rtt && xerrors.length >= min_data_points) {
-            let steps_per_px = steps_per_full_width / im.width;
-            let xerror_steps = Math.round(mean_guide_error(xerrors) * steps_per_px);
-            let yerror_steps = Math.round(mean_guide_error(yerrors) * steps_per_px);
-            if (xerror_steps != 0) {
-                pkt_add_trim_steps(0, -xerror_steps);
-                last_guide_trim = Date.now();
-                xerrors = [];
-            }
-            if (yerror_steps != 0) {
-                pkt_add_trim_steps(1, -yerror_steps);
-                last_guide_trim = Date.now();
-                yerrors = [];
-            }
-        }
-    }
-
     let allvals = [];
     let hist = [];
 
@@ -459,7 +412,52 @@ function process_image() {
         $('#histogram').hide();
     }
 
+    // auto-guiding
     if (autoguide_enabled) {
+        let new_windowx = windowx, new_windowy = windowy;
+        let sumx = 0, sumy = 0, total = 0;
+        for (let y = Math.round(windowy-windowsize/2); y < windowy+windowsize/2; y++) {
+            if (y < 0 || y >= im.height)
+                continue;
+            for (let x = Math.round(windowx-windowsize/2); x < windowx+windowsize/2; x++) {
+                if (x < 0 || x >= im.width)
+                    continue;
+                let idx = 4 * (y*im.width + x);
+                let col = pix[idx] + pix[idx+1] + pix[idx+2]; // r,g,b channels
+                col *= col;
+                sumy += y * col;
+                sumx += x * col;
+                total += col;
+            }
+        }
+        if (total > 0) {
+            new_windowx = sumx / total;
+            new_windowy = sumy / total;
+        }
+
+        xerrors.push([Date.now(), new_windowx - guidestarx]);
+        yerrors.push([Date.now(), new_windowy - guidestary]);
+
+        delete_old_guide_data(xerrors);
+        delete_old_guide_data(yerrors);
+
+        // add some trim
+        if (Date.now() > last_guide_trim + max_guide_rtt && xerrors.length >= min_data_points) {
+            let steps_per_px = steps_per_full_width / im.width;
+            let xerror_steps = Math.round(mean_guide_error(xerrors) * steps_per_px);
+            let yerror_steps = Math.round(mean_guide_error(yerrors) * steps_per_px);
+            if (xerror_steps != 0) {
+                pkt_add_trim_steps(0, xerror_steps);
+                last_guide_trim = Date.now();
+                xerrors = [];
+            }
+            if (yerror_steps != 0) {
+                pkt_add_trim_steps(1, -yerror_steps);
+                last_guide_trim = Date.now();
+                yerrors = [];
+            }
+        }
+
         ctx.translate(0.5,0.5); // XXX: get crisp pixel-aligned lines
         ctx.lineWidth = '2';
 
